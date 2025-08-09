@@ -1,0 +1,97 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const loadSampleBtn = document.getElementById('loadSample');
+  const fileUploadInput = document.getElementById('fileUpload');
+  const categoryList = document.getElementById('categoryList');
+  const barChart = document.getElementById('barChart');
+  const dataTable = document.getElementById('dataTable');
+  const saleBanner = document.getElementById('saleBanner');
+
+  // Sample data for demo
+  const sampleData = [
+    { category: "Sales", value: 120 },
+    { category: "Marketing", value: 80 },
+    { category: "Development", value: 150 },
+    { category: "Support", value: 60 },
+  ];
+
+  function renderCategoryList(data) {
+    categoryList.innerHTML = "<h3>Categories</h3>";
+    const ul = document.createElement("ul");
+    data.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.category;
+      li.addEventListener("click", () => renderDetails(item));
+      ul.appendChild(li);
+    });
+    categoryList.appendChild(ul);
+  }
+
+  function renderBarChart(data) {
+    barChart.innerHTML = "<h3>Bar Chart</h3>";
+    const chart = document.createElement("div");
+    chart.style.display = "flex";
+    chart.style.justifyContent = "space-around";
+    chart.style.alignItems = "flex-end";
+    chart.style.height = "150px";
+    data.forEach(item => {
+      const bar = document.createElement("div");
+      bar.style.width = "30px";
+      bar.style.height = item.value + "px";
+      bar.style.backgroundColor = "#39c0ba";
+      bar.title = `${item.category}: ${item.value}`;
+      chart.appendChild(bar);
+    });
+    barChart.appendChild(chart);
+  }
+
+  function renderDetails(item) {
+    dataTable.innerHTML = "<h3>Details</h3>";
+    dataTable.innerHTML += `<p>Category: <strong>${item.category}</strong></p>`;
+    dataTable.innerHTML += `<p>Value: <strong>${item.value}</strong></p>`;
+  }
+
+  function clearAll() {
+    categoryList.innerHTML = "";
+    barChart.innerHTML = "";
+    dataTable.innerHTML = "";
+  }
+
+  function loadSample() {
+    clearAll();
+    renderCategoryList(sampleData);
+    renderBarChart(sampleData);
+  }
+
+  loadSampleBtn.addEventListener('click', loadSample);
+
+  fileUploadInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const text = event.target.result;
+      parseCSV(text);
+    };
+    reader.readAsText(file);
+  });
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+      const [category, value] = lines[i].split(',');
+      data.push({ category: category.trim(), value: Number(value) });
+    }
+    clearAll();
+    renderCategoryList(data);
+    renderBarChart(data);
+  }
+
+  // Show sale banner after 2 seconds
+  setTimeout(() => {
+    saleBanner.style.display = 'block';
+  }, 2000);
+
+  // Load sample data on page load automatically
+  loadSample();
+});
