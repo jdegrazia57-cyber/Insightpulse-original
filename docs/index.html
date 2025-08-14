@@ -1,4 +1,164 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InsightPulse</title>
+<style>
+body {margin:0;font-family:Arial, sans-serif;background:#f9fafb;color:#333;line-height:1.6;}
+header {background:#0f172a;color:#fff;padding:2rem;text-align:center;}
+header h1 {margin:0;font-size:2.5rem;}
+header p {margin-top:.5rem;font-size:1.2rem;color:#cbd5e1;}
+nav {background:#1e293b;display:flex;justify-content:center;}
+nav a {color:#fff;padding:1rem;display:block;text-decoration:none;}
+nav a:hover {background:#334155;}
+section {padding:2rem;max-width:1000px;margin:auto;}
+h2 {color:#0f172a;margin-top:0;}
+.features {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;}
+.feature {background:#fff;padding:1rem;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+footer {background:#0f172a;color:#cbd5e1;text-align:center;padding:1rem;margin-top:2rem;}
+button,input[type="file"] {cursor:pointer;}
+.chart-container {display:flex;flex-wrap:wrap;gap:1rem;}
+.chart-box {flex:1 1 300px;background:#fff;padding:1rem;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+table {width:100%;border-collapse:collapse;margin-top:1rem;}
+th,td {border:1px solid #ccc;padding:0.5rem;text-align:left;}
+th {background:#f1f5f9;}
+.kpis {display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;}
+.kpi {flex:1 1 150px;background:#fff;padding:1rem;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>InsightPulse</h1>
+  <p>Smart, Instant Analytics — Anywhere, Anytime</p>
+</header>
+
+<nav>
+  <a href="#features">Features</a>
+  <a href="#liveapp">Live App</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<section id="features">
+  <h2>Features</h2>
+  <div class="features">
+    <div class="feature">
+      <h3>Upload & Analyze</h3>
+      <p>Drag and drop your CSV to instantly see metrics and charts.</p>
+    </div>
+    <div class="feature">
+      <h3>Offline Ready</h3>
+      <p>Works entirely in your browser without needing a server.</p>
+    </div>
+    <div class="feature">
+      <h3>Responsive Design</h3>
+      <p>Optimized for desktop, tablet, and mobile experiences.</p>
+    </div>
+  </div>
+</section>
+
+<section id="liveapp">
+  <h2>Live App</h2>
+  <input type="file" id="fileInput" accept=".csv" />
+  <div class="kpis">
+    <div class="kpi"><h3 id="kpi1">0</h3><p>Sum</p></div>
+    <div class="kpi"><h3 id="kpi2">0</h3><p>Average ×100</p></div>
+    <div class="kpi"><h3 id="kpi3">0%</h3><p>Growth</p></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-box">
+      <svg id="lineChart" width="100%" height="200"></svg>
+    </div>
+    <div class="chart-box">
+      <svg id="barChart" width="100%" height="200"></svg>
+    </div>
+  </div>
+  <table id="dataTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<section id="pricing">
+  <h2>Pricing</h2>
+  <p>Exclusive License — Contact us for a custom quote.</p>
+</section>
+
+<section id="faq">
+  <h2>FAQ</h2>
+  <p><strong>Does it work offline?</strong> Yes, fully functional offline once loaded.</p>
+  <p><strong>Can I customize it?</strong> Yes, colors, branding, and metrics can be tailored.</p>
+</section>
+
+<footer>
+  <p>&copy; 2025 InsightPulse. All rights reserved.</p>
+</footer>
+
+<script>
+// CSV parsing
+function parseCSV(text) {
+  return text.trim().split("\n").map(line => line.split(","));
+}
+function updateKPIs(data) {
+  let nums = data.slice(1).map(r => parseFloat(r[1])).filter(n => !isNaN(n));
+  let sum = nums.reduce((a,b) => a+b, 0);
+  let avg = sum / nums.length;
+  let growth = ((nums[nums.length-1] - nums[0]) / nums[0]) * 100;
+  document.getElementById("kpi1").textContent = sum.toFixed(2);
+  document.getElementById("kpi2").textContent = (avg*100).toFixed(2);
+  document.getElementById("kpi3").textContent = growth.toFixed(2) + "%";
+}
+function drawLineChart(data) {
+  const svg = document.getElementById("lineChart");
+  svg.innerHTML = "";
+  const nums = data.slice(1).map(r => parseFloat(r[1])).filter(n => !isNaN(n));
+  const max = Math.max(...nums);
+  const min = Math.min(...nums);
+  const pts = nums.map((n,i) => {
+    const x = (i/(nums.length-1)) * svg.clientWidth;
+    const y = svg.clientHeight - ((n-min)/(max-min)) * svg.clientHeight;
+    return `${x},${y}`;
+  }).join(" ");
+  svg.innerHTML = `<polyline fill="none" stroke="#0f172a" stroke-width="2" points="${pts}" />`;
+}
+function drawBarChart(data) {
+  const svg = document.getElementById("barChart");
+  svg.innerHTML = "";
+  const nums = data.slice(1).map(r => parseFloat(r[1])).filter(n => !isNaN(n));
+  const max = Math.max(...nums);
+  const barWidth = svg.clientWidth / nums.length;
+  nums.forEach((n,i) => {
+    const h = (n/max) * svg.clientHeight;
+    const x = i * barWidth;
+    const y = svg.clientHeight - h;
+    svg.innerHTML += `<rect x="${x}" y="${y}" width="${barWidth-2}" height="${h}" fill="#0f172a" />`;
+  });
+}
+function fillTable(data) {
+  const thead = document.querySelector("#dataTable thead");
+  const tbody = document.querySelector("#dataTable tbody");
+  thead.innerHTML = "<tr>" + data[0].map(h => `<th>${h}</th>`).join("") + "</tr>";
+  tbody.innerHTML = data.slice(1).map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>").join("");
+}
+document.getElementById("fileInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const data = parseCSV(ev.target.result);
+    updateKPIs(data);
+    drawLineChart(data);
+    drawBarChart(data);
+    fillTable(data);
+  };
+  reader.readAsText(file);
+});
+</script>
+
+</body>
+</html><!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
