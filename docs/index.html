@@ -3,6 +3,107 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InsightPulse — Teal on Black</title>
+<style>
+:root{
+  --bg:#000;        /* pure black background */
+  --surface:#050a0a; /* card panels */
+  --muted:#0d1c1c;   /* borders */
+  --text:#eaffff;    /* main text (light teal-white) */
+  --sub:#7adad4;     /* secondary teal */
+  --teal1:#004444;
+  --teal2:#006666;
+  --teal3:#00aaaa;
+  --mint:#00e6d3;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+
+header{
+  background:linear-gradient(135deg,var(--teal1),var(--teal3));
+  color:#fff;text-align:center;padding:2rem 1rem;
+}
+header h1{margin:0;font-size:2.5rem;color:var(--mint);text-shadow:0 0 20px var(--teal3)}
+
+nav{
+  display:flex;justify-content:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--teal2),var(--teal3));
+}
+nav a{padding:1rem 1.25rem;color:#fff;text-decoration:none;border-radius:10px}
+nav a:hover{background:rgba(0,230,211,.2);box-shadow:0 0 10px var(--mint)}
+
+section{padding:2rem 1rem;max-width:1100px;margin:auto}
+h2{color:var(--mint)}
+.feature,.card,.chart-box,.kpi,.table-wrap{
+  background:var(--surface);border:1px solid var(--muted);border-radius:12px;padding:1rem
+}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.feature h3{color:var(--teal3)}
+
+.kpis{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+.kpi{flex:1 1 180px;text-align:center}
+.kpi .kpi-value{font-size:2rem;color:var(--mint);font-weight:700}
+.kpi .kpi-label{color:var(--sub)}
+
+.chart-container{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.chart-box svg{width:100%;height:220px;background:#000;border:1px solid var(--teal2);border-radius:10px}
+table{width:100%;border-collapse:collapse;margin-top:1rem}
+th,td{padding:.6rem;border-bottom:1px solid var(--teal2)}
+th{color:var(--mint)}
+
+input[type="file"]{display:none}
+.label-btn{
+  display:inline-block;padding:.8rem 1rem;border:1px dashed var(--teal3);border-radius:12px;color:var(--mint);cursor:pointer
+}
+.label-btn:hover{background:rgba(0,230,211,.1)}
+
+footer{background:var(--teal1);text-align:center;padding:1rem;color:var(--mint);margin-top:2rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>InsightPulse</h1>
+  <p>Analytics that pulse in teal on black.</p>
+</header>
+<nav>
+  <a href="#features">Features</a>
+  <a href="#liveapp">Live App</a>
+  <a href="#pricing">Pricing</a>
+</nav>
+<section id="features">
+  <h2>Features</h2>
+  <div class="features">
+    <div class="feature"><h3>Instant</h3><p>Drop a CSV, get KPIs & charts instantly.</p></div>
+    <div class="feature"><h3>Private</h3><p>Runs 100% offline, in your browser.</p></div>
+    <div class="feature"><h3>White-label</h3><p>Customize colors & logos easily.</p></div>
+  </div>
+</section>
+<section id="liveapp">
+  <h2>Live App</h2>
+  <label class="label-btn"><input type="file" id="fileInput" accept=".csv" />Upload CSV</label>
+  <div class="kpis">
+    <div class="kpi"><span class="kpi-value" id="kpi1">0</span><span class="kpi-label">Total</span></div>
+    <div class="kpi"><span class="kpi-value" id="kpi2">0</span><span class="kpi-label">Average</span></div>
+    <div class="kpi"><span class="kpi-value" id="kpi3">0%</span><span class="kpi-label">Growth</span></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-box"><svg id="lineChart"></svg></div>
+    <div class="chart-box"><svg id="barChart"></svg></div>
+  </div>
+  <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+</section>
+<section id="pricing" class="card"><h2>Pricing</h2><p>Exclusive $200K acquisition-ready package.</p></section>
+<footer><p>&copy; <span id="year"></span> InsightPulse</p></footer>
+
+<script>
+document.getElementById("year").textContent=new Date().getFullYear();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>InsightPulse — Live Demo</title>
 <style>
 /* --- Base (teal on black) --- */
