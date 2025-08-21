@@ -19,6 +19,439 @@
 <meta name="twitter:image" content="https://insightpulse.vercel.app/og.png">
 
 <style>
+:root{ --bg:#000; --surface:#050a0a; --muted:#0d1c1c; --text:#eaffff;
+  --sub:#a5f7f1; --teal1:#146b6b; --teal2:#1ca5a5; --teal3:#26d9cf; --mint:#4afff0; }
+html,body{height:100%}
+body{
+  margin:0; font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  color:var(--text); line-height:1.6;
+  background:linear-gradient(135deg,#001212,#002626,#001212);
+  background-size:400% 400%; animation:tealGradient 20s ease infinite;
+}
+@keyframes tealGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+*{box-sizing:border-box}
+header{background:linear-gradient(135deg,var(--teal1),var(--teal2),var(--teal3));text-align:center;padding:2rem 1rem}
+header h1{margin:0;font-size:2.6rem;color:var(--mint);text-shadow:0 0 14px rgba(74,255,240,.9),0 0 34px rgba(38,217,207,.7);animation:glowPulse 3s ease-in-out infinite alternate}
+header p{margin:.4rem 0 0;color:#c5fdfb}
+@keyframes glowPulse{from{ text-shadow:0 0 14px rgba(74,255,240,.9),0 0 34px rgba(38,217,207,.7)}to{ text-shadow:0 0 20px rgba(74,255,240,1),0 0 46px rgba(38,217,207,.9)}}
+nav{display:flex;justify-content:center;gap:.5rem;background:linear-gradient(135deg,var(--teal2),var(--teal3))}
+nav a{color:#fff;text-decoration:none;padding:1rem 1.25rem;border-radius:10px}
+nav a:hover{background:rgba(74,255,240,.15);box-shadow:0 0 12px rgba(74,255,240,.6);text-shadow:0 0 8px rgba(74,255,240,.85),0 0 14px rgba(38,217,207,.6);transition:all .2s ease}
+section{padding:2rem 1rem;max-width:1100px;margin:auto}
+h2{color:var(--mint);margin:0 0 .75rem}
+.feature,.card,.chart-box,.kpi,.table-wrap,.cta-card{
+  background:var(--surface);border:1px solid var(--muted);border-radius:12px;padding:1rem;
+  box-shadow:0 0 14px rgba(38,217,207,.4),0 0 28px rgba(74,255,240,.15);transition:box-shadow .3s ease
+}
+.feature:hover,.card:hover,.chart-box:hover,.kpi:hover,.table-wrap:hover,.cta-card:hover{box-shadow:0 0 18px rgba(38,217,207,.7),0 0 32px rgba(74,255,240,.3)}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.feature h3{color:var(--teal3);margin:.2rem 0}
+.feature p{color:var(--sub);margin:0}
+.kpis{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+.kpi{flex:1 1 180px;text-align:center}
+.kpi .kpi-value{font-size:2rem;color:var(--mint);font-weight:800}
+.kpi .kpi-label{color:var(--sub)}
+.chart-container{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.chart-box svg{width:100%;height:220px;background:#000;border:1px solid var(--teal2);border-radius:10px}
+.table-wrap{margin-top:1rem}
+table{width:100%;border-collapse:collapse;color:#eaffff}
+th,td{padding:.6rem;border-bottom:1px solid var(--teal2);text-align:left;white-space:nowrap}
+th{color:var(--mint);background:#021111}
+
+/* Buttons / inputs */
+input[type="file"]{ /* keep visible or overlayed (not display:none) */ }
+.actions{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem}
+.btn,.label-btn{
+  display:inline-block;padding:.85rem 1rem;border:1px dashed var(--teal3);
+  border-radius:12px;color:var(--mint);cursor:pointer;background:#031515;
+  box-shadow:0 0 10px rgba(74,255,240,.35);text-decoration:none
+}
+.label-btn{animation:buttonPulse 3s infinite alternate}
+.btn:hover,.label-btn:hover{background:#052020}
+@keyframes buttonPulse{0%{box-shadow:0 0 6px rgba(74,255,240,.4)}100%{box-shadow:0 0 18px rgba(74,255,240,.9)}}
+
+/* Overlay input that iPad will accept */
+.file-wrap{position:relative;display:inline-block}
+.file-wrap input[type="file"]{
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; cursor:pointer; /* not display:none */
+}
+
+/* Dropzone */
+.dropzone{
+  border:2px dashed var(--teal3);border-radius:14px;padding:1rem;text-align:center;color:var(--sub);
+  background:#021616; margin:.5rem 0 0
+}
+.dropzone.dragover{background:#062222;box-shadow:0 0 16px rgba(74,255,240,.5)}
+.dropzone strong{color:var(--mint)}
+
+.cta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
+.cta-card h3{margin:.2rem 0;color:var(--mint)}
+.cta-card p{margin:.2rem 0;color:var(--sub)}
+.cta-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem}
+.highlight{outline:2px solid var(--mint); box-shadow:0 0 20px rgba(74,255,240,.8)!important}
+footer{background:#001414;text-align:center;padding:1rem;color:var(--mint);margin-top:2rem}
+footer nav{background:none;gap:1rem}
+footer a{color:var(--mint);text-decoration:underline}
+.badge{display:inline-block;margin-left:.5rem;background:#072222;border:1px solid var(--teal2);border-radius:999px;padding:.2rem .55rem;color:var(--mint);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>InsightPulse</h1>
+  <p>Premium teal-on-black analytics with animated glow.</p>
+</header>
+
+<nav>
+  <a href="#features">Features</a>
+  <a href="#liveapp">Live App</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<section id="features">
+  <h2>Features</h2>
+  <div class="features">
+    <div class="feature"><h3>Instant</h3><p>Drop a CSV → KPIs + charts immediately.</p></div>
+    <div class="feature"><h3>Private</h3><p>100% client-side. No server needed.</p></div>
+    <div class="feature"><h3>White-label</h3><p>Swap logo and colors easily.</p></div>
+  </div>
+
+  <div class="cta-grid">
+    <div class="cta-card">
+      <h3>Drop your CSV file here</h3>
+      <p>Drag a CSV (desktop) or tap to choose (iPad).</p>
+      <div id="dropZone" class="dropzone" onclick="document.getElementById('fileInput').click()">
+        <strong>Tap to choose</strong> or drop file here
+      </div>
+    </div>
+
+    <div class="cta-card">
+      <h3>Upload your data — Get insights</h3>
+      <p>One tap to import and visualize.</p>
+      <div class="cta-row">
+        <div class="file-wrap">
+          <span class="label-btn">Upload CSV</span>
+          <input id="fileInputTop" type="file" accept=".csv" />
+        </div>
+        <div class="file-wrap">
+          <span class="btn">Try it with your data</span>
+          <input id="fileInputTop2" type="file" accept=".csv" />
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-card">
+      <h3>See it in action</h3>
+      <p>Watch a guided demo with live animations.</p>
+      <button id="btnSeeAction" type="button" class="btn">Run Demo 🚀</button>
+    </div>
+
+    <div class="cta-card">
+      <h3>Start for free — Explore integrations</h3>
+      <p>Contact us; we’ll wire integrations for you.</p>
+      <a class="btn"
+         href="mailto:jdegrazia57@gmail.com?subject=InsightPulse%20%E2%80%94%20Getting%20Started&body=Hi%20InsightPulse%2C%0A%0AI%27d%20like%20to%20start%20for%20free%20and%20see%20integrations.%0AName%3A%20%0ACompany%3A%20%0AUse%20case%3A%20">
+         Start for free — Explore integrations
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="liveapp">
+  <h2>Live App <span class="badge">Demo Mode included</span></h2>
+
+  <div class="actions">
+    <!-- iPad-safe main picker -->
+    <div class="file-wrap">
+      <span class="label-btn">Upload CSV</span>
+      <input id="fileInput" type="file" accept=".csv" />
+    </div>
+    <button class="btn" id="runDemo" type="button">Run Demo 🚀</button>
+    <button class="btn" id="replayDemo" type="button" style="display:none">Replay Demo</button>
+  </div>
+
+  <p style="margin:.2rem 0 .2rem">
+    <a href="data:text/csv,Month,Revenue%0AJan,12000%0AFeb,14100%0AMar,15750%0AApr,17040%0AMay,16660%0AJun,18220%0AJul,19510"
+       download="sample.csv" style="color:#4afff0;text-decoration:underline">Download sample CSV</a>
+  </p>
+
+  <div class="kpis">
+    <div class="kpi" id="kpiBox1"><span class="kpi-value" id="kpi1">0</span><span class="kpi-label">Total</span></div>
+    <div class="kpi" id="kpiBox2"><span class="kpi-value" id="kpi2">0</span><span class="kpi-label">Average ×100</span></div>
+    <div class="kpi" id="kpiBox3"><span class="kpi-value" id="kpi3">0%</span><span class="kpi-label">Growth</span></div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-box" id="lineBox"><svg id="lineChart"></svg></div>
+    <div class="chart-box" id="barBox"><svg id="barChart"></svg></div>
+  </div>
+
+  <div class="table-wrap" id="tableBox"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<section id="pricing" class="card">
+  <h2>Pricing</h2>
+  <p style="color:var(--sub)">Exclusive acquisition package available.</p>
+</section>
+
+<section id="faq">
+  <h2>FAQ</h2>
+  <p><strong>Does it work offline?</strong> Yes — single file, no CDNs.</p>
+  <p><strong>Is it private?</strong> 100% client-side parsing; no uploads.</p>
+  <p><strong>Can it be branded?</strong> Yes — edit variables at the top of the CSS.</p>
+</section>
+
+<footer>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#liveapp">Live App</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <p>&copy; <span id="year"></span> InsightPulse</p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = id => document.getElementById(id);
+
+  // Year + smooth scroll
+  $('year').textContent = new Date().getFullYear();
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      const id=a.getAttribute('href').slice(1);
+      const el=document.getElementById(id);
+      if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+
+  // CSV utils
+  function parseCSV(text){
+    const lines = text.trim().split(/\r?\n/);
+    return lines.map(line=>{
+      const out=[]; let cur='', q=false;
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch === '"'){ q=!q; }
+        else if(ch === ',' && !q){ out.push(cur); cur=''; }
+        else{ cur += ch; }
+      }
+      out.push(cur);
+      return out.map(c => c.replace(/^"|"$/g,''));
+    });
+  }
+  function firstNumericColumn(rows){
+    if(rows.length < 2) return -1;
+    for(let c=1;c<rows[0].length;c++){
+      if(rows.slice(1).some(r => !isNaN(parseFloat(r[c])))) return c;
+    }
+    return -1;
+  }
+
+  function animateNumber(el, from, to, duration=900){
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min(1,(now-start)/duration);
+      const val = from + (to-from)*p;
+      el.textContent = val.toFixed(2);
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  function updateKPIs(rows,numCol, animate=true){
+    const nums = rows.slice(1).map(r=>parseFloat(r[numCol])).filter(n=>!isNaN(n));
+    if(!nums.length) return;
+    const sum = nums.reduce((a,b)=>a+b,0);
+    const avg = sum/nums.length;
+    const growth = nums[0] ? ((nums[nums.length-1]-nums[0])/Math.abs(nums[0]))*100 : 0;
+
+    const el1=$('kpi1'), el2=$('kpi2'), el3=$('kpi3');
+    if(animate){
+      animateNumber(el1, parseFloat(el1.textContent)||0, sum);
+      animateNumber(el2, parseFloat(el2.textContent)||0, avg*100);
+      const gFrom=parseFloat((el3.textContent||"0").replace("%",""))||0;
+      const gTo=growth, start=performance.now(), dur=900;
+      function tick(t){
+        const p=Math.min(1,(t-start)/dur), v=gFrom+(gTo-gFrom)*p;
+        el3.textContent=v.toFixed(2)+"%";
+        if(p<1) requestAnimationFrame(tick);
+      } requestAnimationFrame(tick);
+    } else {
+      el1.textContent=sum.toFixed(2);
+      el2.textContent=(avg*100).toFixed(2);
+      el3.textContent=growth.toFixed(2)+"%";
+    }
+  }
+  function clearSVG(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function drawLineChart(rows,numCol){
+    const svg = $('lineChart'); clearSVG(svg);
+    const nums = rows.slice(1).map(r=>parseFloat(r[numCol])).filter(n=>!isNaN(n));
+    if(!nums.length) return;
+    const W = svg.clientWidth || 600, H = 220;
+    const min = Math.min(...nums), max = Math.max(...nums), range = (max-min)||1;
+    for(let i=0;i<=4;i++){
+      const y = (i/4)*H;
+      const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1",0); ln.setAttribute("x2",W);
+      ln.setAttribute("y1",y); ln.setAttribute("y2",y);
+      ln.setAttribute("stroke","#134c4c"); ln.setAttribute("stroke-width","1");
+      svg.appendChild(ln);
+    }
+    const pts = nums.map((n,i)=>{
+      const x = (i/Math.max(1,nums.length-1))*W;
+      const y = H - ((n-min)/range)*H;
+      return `${x},${y}`;
+    }).join(" ");
+    const poly = document.createElementNS("http://www.w3.org/2000/svg","polyline");
+    poly.setAttribute("fill","none");
+    poly.setAttribute("stroke","#4afff0");
+    poly.setAttribute("stroke-width","2");
+    poly.setAttribute("points",pts);
+    svg.appendChild(poly);
+  }
+  function drawBarChart(rows,numCol){
+    const svg = $('barChart'); clearSVG(svg);
+    const nums = rows.slice(1).map(r=>parseFloat(r[numCol])).filter(n=>!isNaN(n));
+    if(!nums.length) return;
+    const W = svg.clientWidth || 600, H = 220;
+    const max = Math.max(...nums) || 1;
+    const slot = W/nums.length;
+    const barW = Math.max(1, slot-3);
+    for(let i=0;i<=4;i++){
+      const y = (i/4)*H;
+      const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1",0); ln.setAttribute("x2",W);
+      ln.setAttribute("y1",y); ln.setAttribute("y2",y);
+      ln.setAttribute("stroke","#134c4c"); ln.setAttribute("stroke-width","1");
+      svg.appendChild(ln);
+    }
+    nums.forEach((n,i)=>{
+      const h = (n/max)*H;
+      const x = i*slot + (slot-barW)/2;
+      const y = H - h;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+      rect.setAttribute("x",x); rect.setAttribute("y",y);
+      rect.setAttribute("width",barW); rect.setAttribute("height",h);
+      rect.setAttribute("fill","#26d9cf");
+      rect.setAttribute("rx","4");
+      svg.appendChild(rect);
+    });
+  }
+  function fillTable(rows){
+    const thead = document.querySelector("#dataTable thead");
+    const tbody = document.querySelector("#dataTable tbody");
+    thead.innerHTML = "<tr>" + rows[0].map(h=>`<th>${h}</th>`).join("") + "</tr>";
+    tbody.innerHTML = rows.slice(1).map(r=>"<tr>"+r.map(c=>`<td>${c}</td>`).join("")+"</tr>").join("");
+  }
+  function handleRows(rows){
+    const numCol = firstNumericColumn(rows);
+    fillTable(rows);
+    if(numCol !== -1){
+      updateKPIs(rows,numCol,false);
+      drawLineChart(rows,numCol);
+      drawBarChart(rows,numCol);
+    }
+    $('liveapp').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // Wire all file inputs to same handler
+  ['fileInput','fileInputTop','fileInputTop2'].forEach(id=>{
+    const inp = $(id);
+    if(!inp) return;
+    inp.addEventListener('change', e=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        const rows = parseCSV(String(ev.target.result||""));
+        if(rows.length) handleRows(rows);
+      };
+      reader.readAsText(file);
+    });
+  });
+
+  // Dropzone (desktop) + tap-to-open (iPad handled by onclick on the div)
+  const dropZone = $('dropZone');
+  if(dropZone){
+    ['dragenter','dragover'].forEach(evt=>{
+      dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragover'); });
+    });
+    ['dragleave','dragend'].forEach(evt=>{
+      dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.remove('dragover'); });
+    });
+    dropZone.addEventListener('drop', e=>{
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        const rows = parseCSV(String(ev.target.result||""));
+        if(rows.length) handleRows(rows);
+      };
+      reader.readAsText(file);
+    });
+    window.addEventListener('dragover', e=>e.preventDefault());
+    window.addEventListener('drop', e=>e.preventDefault());
+  }
+
+  // Demo mode
+  const demoCSV = `Month,Revenue
+Jan,12000
+Feb,14100
+Mar,15750
+Apr,17040
+May,16660
+Jun,18220
+Jul,19510
+Aug,20500
+Sep,21150
+Oct,22620
+Nov,23990
+Dec,25550`;
+  function runDemoSequence(){
+    const rows = parseCSV(demoCSV);
+    const numCol = firstNumericColumn(rows);
+    fillTable(rows);
+    const boxes = [ 'kpiBox1','kpiBox2','kpiBox3','lineBox','barBox','tableBox' ].map(id=>$(id));
+    boxes.forEach(b=>b.classList.remove('highlight'));
+    updateKPIs(rows,numCol,true);
+    setTimeout(()=>{ boxes[0].classList.add('highlight'); }, 200);
+    setTimeout(()=>{ boxes[0].classList.remove('highlight'); boxes[1].classList.add('highlight'); }, 1200);
+    setTimeout(()=>{ boxes[1].classList.remove('highlight'); boxes[2].classList.add('highlight'); }, 2200);
+    setTimeout(()=>{ boxes[2].classList.remove('highlight'); drawLineChart(rows,numCol); boxes[3].classList.add('highlight'); }, 3000);
+    setTimeout(()=>{ boxes[3].classList.remove('highlight'); drawBarChart(rows,numCol); boxes[4].classList.add('highlight'); }, 3800);
+    setTimeout(()=>{ boxes[4].classList.remove('highlight'); boxes[5].classList.add('highlight'); }, 4600);
+    setTimeout(()=>{ boxes.forEach(b=>b.classList.remove('highlight')); $('replayDemo').style.display='inline-block'; }, 5600);
+    $('liveapp').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  $('runDemo').addEventListener('click', ()=>{ $('replayDemo').style.display='none'; runDemoSequence(); });
+  $('replayDemo').addEventListener('click', runDemoSequence);
+  $('btnSeeAction').addEventListener('click', ()=>{ $('replayDemo').style.display='none'; runDemoSequence(); });
+});
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>InsightPulse — Turn Your Data Into Decisions</title>
+
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%234afff0"/><stop offset="100%" stop-color="%2326d9cf"/></radialGradient></defs><circle cx="32" cy="32" r="30" fill="url(%23g)"/><path d="M16 34h32M16 26h24" stroke="%23001010" stroke-width="4" stroke-linecap="round"/></svg>'>
+
+<meta name="description" content="Premium, brandable analytics experience. Offline-ready and private.">
+<meta property="og:title" content="InsightPulse — Turn Your Data Into Decisions">
+<meta property="og:description" content="Premium, brandable analytics experience. Offline-ready and private.">
+<meta property="og:url" content="https://insightpulse.vercel.app">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://insightpulse.vercel.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="InsightPulse — Turn Your Data Into Decisions">
+<meta name="twitter:description" content="Premium, brandable analytics experience. Offline-ready and private.">
+<meta name="twitter:image" content="https://insightpulse.vercel.app/og.png">
+
+<style>
 :root{
   --bg:#000; --surface:#050a0a; --muted:#0d1c1c; --text:#eaffff;
   --sub:#a5f7f1; --teal1:#146b6b; --teal2:#1ca5a5; --teal3:#26d9cf; --mint:#4afff0;
