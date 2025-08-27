@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>InsightPulse — Turn Your Data Into Decisions</title>
+<style>
+:root{--bg:#000;--surface:#050a0a;--muted:#0d1c1c;--text:#eaffff;--sub:#a5f7f1;--teal1:#146b6b;--teal2:#1ca5a5;--teal3:#26d9cf;--mint:#4afff0}
+html,body{height:100%}
+body{margin:0;font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);line-height:1.6;background:linear-gradient(135deg,#001212,#002626,#001212);background-size:400% 400%;animation:tg 20s ease infinite}
+@keyframes tg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+*{box-sizing:border-box}
+header{background:linear-gradient(135deg,var(--teal1),var(--teal2),var(--teal3));text-align:center;padding:2rem 1rem}
+header h1{margin:0;font-size:2.2rem;color:var(--mint)}
+nav{display:flex;justify-content:center;gap:.5rem;background:linear-gradient(135deg,var(--teal2),var(--teal3))}
+nav a{color:#fff;text-decoration:none;padding:1rem 1.25rem;border-radius:10px}
+nav a:hover{background:rgba(74,255,240,.15)}
+section{padding:2rem 1rem;max-width:1100px;margin:auto}
+h2{color:var(--mint);margin:0 0 .75rem}
+.card,.chart-box,.kpi,.table-wrap{background:var(--surface);border:1px solid var(--muted);border-radius:12px;padding:1rem;box-shadow:0 0 14px rgba(38,217,207,.4),0 0 28px rgba(74,255,240,.15)}
+.kpis{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+.kpi{flex:1 1 180px;text-align:center}
+.kpi .kpi-value{font-size:2rem;color:var(--mint);font-weight:800}
+.kpi .kpi-label{color:var(--sub)}
+.chart-container{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}
+.chart-box svg{width:100%;height:220px;background:#000;border:1px solid var(--teal2);border-radius:10px}
+.table-wrap{margin-top:1rem}
+table{width:100%;border-collapse:collapse;color:#eaffff}
+th,td{padding:.6rem;border-bottom:1px solid var(--teal2);text-align:left;white-space:nowrap}
+th{color:var(--mint);background:#021111}
+.dropzone{border:2px dashed var(--teal3);border-radius:14px;padding:1.1rem;text-align:center;color:var(--sub);background:#021616;margin:.6rem 0 0;user-select:none}
+.dropzone.dragover{background:#062222;box-shadow:0 0 16px rgba(74,255,240,.5)}
+.dropzone strong{color:var(--mint)}
+.btn{display:inline-block;padding:.9rem 1.1rem;border:1px dashed var(--teal3);border-radius:12px;color:var(--mint);background:#031515;text-decoration:none;cursor:pointer}
+.btn:hover{background:#052020}
+#fileNative{position:absolute;left:-9999px;width:1px;height:1px;opacity:0.001;pointer-events:none}
+footer{background:#001414;text-align:center;padding:1rem;color:var(--mint);margin-top:2rem}
+.badge{display:inline-block;margin-left:.5rem;background:#072222;border:1px solid var(--teal2);border-radius:999px;padding:.2rem .55rem;color:var(--mint);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>InsightPulse</h1>
+  <p>Private, single-file analytics (teal on black).</p>
+</header>
+
+<nav>
+  <a href="#liveapp">Live App</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<section id="liveapp">
+  <h2>Live App <span class="badge">Build: HOTFIX-10-MIN</span></h2>
+
+  <input id="fileNative" type="file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" />
+
+  <div class="card" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+    <a href="#" class="btn" id="runDemo">See it in action</a>
+  </div>
+
+  <div id="dropZone" class="dropzone" role="button" tabindex="0" aria-label="Upload CSV">
+    <strong>Drop your CSV file here</strong> — or tap anywhere in this box to choose a file
+  </div>
+
+  <p style="margin:.6rem 0">
+    <a href="data:text/csv,Month,Revenue%0AJan,12000%0AFeb,14100%0AMar,15750%0AApr,17040%0AMay,16660%0AJun,18220%0AJul,19510"
+       download="sample.csv" style="color:#4afff0;text-decoration:underline">Download sample CSV</a>
+  </p>
+
+  <div class="kpis">
+    <div class="kpi"><span class="kpi-value" id="kpi1">0</span><span class="kpi-label">Total</span></div>
+    <div class="kpi"><span class="kpi-value" id="kpi2">0</span><span class="kpi-label">Average ×100</span></div>
+    <div class="kpi"><span class="kpi-value" id="kpi3">0%</span><span class="kpi-label">Growth</span></div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-box"><svg id="lineChart"></svg></div>
+    <div class="chart-box"><svg id="barChart"></svg></div>
+  </div>
+
+  <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<section id="pricing" class="card">
+  <h2>Pricing</h2>
+  <p style="color:var(--sub)">Exclusive acquisition package available.</p>
+</section>
+
+<section id="faq" class="card">
+  <h2>FAQ</h2>
+  <p><strong>Offline?</strong> Yes — one HTML file.</p>
+  <p><strong>Private?</strong> 100% client-side parsing.</p>
+  <p><strong>Brandable?</strong> Yes — tweak the CSS variables.</p>
+</section>
+
+<footer>
+  <p>&copy; <span id="year"></span> InsightPulse</p>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+const $ = s => document.querySelector(s);
+const fileNative = $('#fileNative');
+const dropZone = $('#dropZone');
+
+['click','touchend','keydown'].forEach(evt=>{
+  dropZone.addEventListener(evt, e=>{
+    if(evt==='keydown' && !(e.key==='Enter'||e.key===' ')) return;
+    e.preventDefault();
+    try{ fileNative.click(); }catch(_){}
+  }, {passive:false});
+});
+
+fileNative.addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => { const rows = parseCSV(String(ev.target.result||'')); renderAll(rows); };
+  r.readAsText(f);
+});
+
+['dragenter','dragover'].forEach(evt=>{
+  dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragover'); });
+});
+['dragleave','dragend','drop'].forEach(evt=>{
+  dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.remove('dragover'); });
+});
+dropZone.addEventListener('drop', e=>{
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => { const rows = parseCSV(String(ev.target.result||'')); renderAll(rows); };
+  r.readAsText(f);
+});
+
+$('#runDemo').addEventListener('click', e=>{
+  e.preventDefault();
+  const demo=`Month,Revenue
+Jan,12000
+Feb,14100
+Mar,15750
+Apr,17040
+May,16660
+Jun,18220
+Jul,19510
+Aug,20500
+Sep,21150
+Oct,22620
+Nov,23990
+Dec,25550`;
+  renderAll(parseCSV(demo));
+});
+
+function parseCSV(t){
+  const lines=t.trim().split(/\r?\n/);
+  return lines.map(line=>{
+    const out=[];let cur='',q=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch=='"'){q=!q;}
+      else if(ch==','&&!q){out.push(cur);cur='';}
+      else{cur+=ch;}
+    }
+    out.push(cur);
+    return out.map(c=>c.replace(/^"|"$/g,''));
+  });
+}
+function firstNumericColumn(rows){
+  if(rows.length<2) return -1;
+  for(let c=1;c<rows[0].length;c++){
+    if(rows.slice(1).some(r=>!isNaN(parseFloat(r[c])))) return c;
+  }
+  return -1;
+}
+function renderAll(rows){
+  if(!rows||!rows.length) return;
+  const n=firstNumericColumn(rows);
+  fillTable(rows);
+  if(n!==-1){ updateKPIs(rows,n); drawLine(rows,n); drawBars(rows,n); }
+  document.getElementById('liveapp').scrollIntoView({behavior:'smooth'});
+}
+function fillTable(rows){
+  const thead=document.querySelector("#dataTable thead");
+  const tbody=document.querySelector("#dataTable tbody");
+  thead.innerHTML="<tr>"+rows[0].map(h=>`<th>${h}</th>`).join("")+"</tr>";
+  tbody.innerHTML=rows.slice(1).map(r=>"<tr>"+r.map(c=>`<td>${c}</td>`).join("")+"</tr>").join("");
+}
+function updateKPIs(rows,n){
+  const nums=rows.slice(1).map(r=>parseFloat(r[n])).filter(x=>!isNaN(x));
+  if(!nums.length) return;
+  const sum=nums.reduce((a,b)=>a+b,0);
+  const avg=sum/nums.length;
+  const growth=nums[0]?((nums[nums.length-1]-nums[0])/Math.abs(nums[0]))*100:0;
+  document.getElementById('kpi1').textContent=sum.toFixed(2);
+  document.getElementById('kpi2').textContent=(avg*100).toFixed(2);
+  document.getElementById('kpi3').textContent=growth.toFixed(2)+"%";
+}
+function clearSVG(s){while(s.firstChild)s.removeChild(s.firstChild);}
+function drawLine(rows,n){
+  const s=document.getElementById('lineChart'); clearSVG(s);
+  const nums=rows.slice(1).map(r=>parseFloat(r[n])).filter(x=>!isNaN(x));
+  if(!nums.length) return;
+  const W=s.clientWidth||600,H=220,min=Math.min(...nums),max=Math.max(...nums),range=(max-min)||1;
+  for(let i=0;i<=4;i++){const y=(i/4)*H;const ln=document.createElementNS("http://www.w3.org/2000/svg","line");ln.setAttribute("x1",0);ln.setAttribute("x2",W);ln.setAttribute("y1",y);ln.setAttribute("y2",y);ln.setAttribute("stroke","#134c4c");ln.setAttribute("stroke-width","1");s.appendChild(ln);}
+  const pts=nums.map((v,i)=>`${(i/Math.max(1,nums.length-1))*W},${H-((v-min)/range)*H}`).join(" ");
+  const p=document.createElementNS("http://www.w3.org/2000/svg","polyline");
+  p.setAttribute("fill","none");p.setAttribute("stroke","#4afff0");p.setAttribute("stroke-width","2");p.setAttribute("points",pts);s.appendChild(p);
+}
+function drawBars(rows,n){
+  const s=document.getElementById('barChart'); clearSVG(s);
+  const nums=rows.slice(1).map(r=>parseFloat(r[n])).filter(x=>!isNaN(x));
+  if(!nums.length) return;
+  const W=s.clientWidth||600,H=220,max=Math.max(...nums)||1,slot=W/nums.length,barW=Math.max(1,slot-3);
+  for(let i=0;i<=4;i++){const y=(i/4)*H;const ln=document.createElementNS("http://www.w3.org/2000/svg","line");ln.setAttribute("x1",0);ln.setAttribute("x2",W);ln.setAttribute("y1",y);ln.setAttribute("y2",y);ln.setAttribute("stroke","#134c4c");ln.setAttribute("stroke-width","1");s.appendChild(ln);}
+  nums.forEach((v,i)=>{const h=(v/max)*H,x=i*slot+(slot-barW)/2,y=H-h;const r=document.createElementNS("http://www.w3.org/2000/svg","rect");r.setAttribute("x",x);r.setAttribute("y",y);r.setAttribute("width",barW);r.setAttribute("height",h);r.setAttribute("fill","#26d9cf");r.setAttribute("rx","4");s.appendChild(r);});
+}
+</script>
+</body>
+</html>
