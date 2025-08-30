@@ -41,8 +41,50 @@ footer{background:#001414;text-align:center;padding:1rem;color:var(--mint);margi
 </style>
 </head>
 <body>
-<header>
-  <h1>InsightPulse</h1>
+<<!-- EMERGENCY VISIBLE PICKER (always works on iPad/Chrome) -->
+<input id="EMERGENCY_PICKER" type="file" accept=".csv,text/csv"
+       style="position:fixed;top:12px;right:12px;z-index:999999;font-size:18px;padding:.4rem;border:2px dashed #26d9cf;border-radius:10px;background:#021616;color:#eaffff">
+<script>
+  // Minimal CSV reader + call into your existing rendering if available
+  (function(){
+    const p = document.getElementById('EMERGENCY_PICKER');
+    p.addEventListener('change', e=>{
+      const f = e.target.files && e.target.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        const text = String(ev.target.result||'');
+        const rows = text.trim().split(/\r?\n/).map(line=>{
+          const out=[]; let cur='', q=false;
+          for (let i=0;i<line.length;i++){
+            const ch=line[i];
+            if (ch === '"') q = !q;
+            else if (ch === ',' && !q) { out.push(cur); cur=''; }
+            else cur += ch;
+          }
+          out.push(cur);
+          return out.map(c => c.replace(/^"|"$/g,''));
+        });
+        // If your page has renderAll/parseCSV, use them; else draw a basic table:
+        if (typeof renderAll === 'function') { renderAll(rows); }
+        else {
+          let t = document.getElementById('__emergency_table__');
+          if(!t){
+            t = document.createElement('div');
+            t.id='__emergency_table__';
+            t.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;max-height:45vh;overflow:auto;background:#050a0a;border:1px solid #0d1c1c;border-radius:12px;padding:10px;color:#eaffff;z-index:999998';
+            document.body.appendChild(t);
+          }
+          const html = '<table style="width:100%;border-collapse:collapse;color:#eaffff">'
+            + '<thead><tr>' + rows[0].map(h=>`<th style="border-bottom:1px solid #178;text-align:left;padding:6px;color:#4afff0">${h}</th>`).join('') + '</tr></thead>'
+            + '<tbody>' + rows.slice(1).map(r=>'<tr>'+r.map(c=>`<td style="border-bottom:1px solid #123;padding:6px">${c}</td>`).join('')+'</tr>').join('') + '</tbody>'
+            + '</table>';
+          t.innerHTML = '<div style="margin-bottom:8px;color:#a5f7f1">Emergency preview (uses visible picker in top-right)</div>' + html;
+        }
+      };
+      r.readAsText(f);
+    });
+  })();
+</script> <h1>InsightPulse</h1>
   <p>Upload a CSV to see KPIs, charts and a table — fully client-side. <span class="badge">Build: FIX-CSV-01</span></p>
 </header>
 
