@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InsightPulse — Live Demo</title>
+  <meta name="description" content="InsightPulse: AI-powered embedded analytics dashboard. Drag-and-drop CSV, interactive widgets, and a clean black-and-teal UI." />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg width='128' height='128' viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'><rect width='512' height='512' rx='64' fill='%230B0F14'/><g><path d='M96 256c0-88.366 71.634-160 160-160s160 71.634 160 160-71.634 160-160 160S96 344.366 96 256z' stroke='%2300D7C9' stroke-width='18' fill='none'/><path d='M140 312c32-72 96-112 164-96 44 10 88 42 104 80' stroke='%2319E0B5' stroke-width='18' stroke-linecap='round' fill='none'/><circle cx='256' cy='256' r='18' fill='%2300D7C9'/><path d='M256 128v60M256 324v60M188 256h-60M324 256h60' stroke='%2300D7C9' stroke-width='14' stroke-linecap='round'/></g></svg>" />
+  <style>
+    :root{--bg:#0b0f14;--surface:#0f1520;--muted:#1a2230;--text:#e6f1ff;--subtext:#9fb2c8;--teal:#00d7c9;--accent:#19e0b5;--ghost:#2a3445}
+    :root.light{--bg:#ffffff;--surface:#f7f9fc;--muted:#e7edf5;--text:#0d1117;--subtext:#5b6b7f;--teal:#00b3aa;--accent:#00d7c9;--ghost:#d8e2ee}
+    *{box-sizing:border-box}html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background:var(--bg);color:var(--text)}
+    .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(180deg,#0b0f14 0,rgba(11,15,20,.8) 100%);border-bottom:1px solid var(--muted)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:28px;height:28px}
+    .brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}
+    .topnav{display:flex;gap:10px;align-items:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--ghost);color:var(--text);background:transparent}
+    .btn.primary{background:var(--teal);color:#081317;border-color:transparent}
+    .btn.secondary{background:var(--surface)}
+    .btn.ghost:hover{background:var(--ghost)}
+    #themeToggle{border:1px solid var(--ghost);background:transparent;color:var(--text);border-radius:10px;padding:8px 10px;cursor:pointer}
+    .container{max-width:1200px;margin:0 auto;padding:20px 16px 80px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;background:linear-gradient(135deg,rgba(0,215,201,.12),transparent 50%);padding:24px;border:1px solid var(--muted);border-radius:16px}
+    .hero-text h2{font-size:32px;margin:0 0 8px}
+    .hero-text p{margin:0 0 16px;color:var(--subtext)}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .file-drop{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--teal);color:var(--text);padding:14px 16px;border-radius:12px;cursor:pointer}
+    .file-drop:hover{background:rgba(0,215,201,.08)}
+    .hero-art{display:flex;align-items:center;justify-content:center}
+    .hero-art img{width:100%;max-width:200px;opacity:.9;filter:drop-shadow(0 6px 30px rgba(0,215,201,.2))}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:24px}
+    .card{background:var(--surface);border:1px solid var(--muted);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card.wide{grid-column:1 / -1}
+    .card h3{margin:0 0 12px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .kpi{background:var(--bg);border:1px solid var(--muted);border-radius:12px;padding:12px}
+    .kpi-label{display:block;font-size:12px;color:var(--subtext)}
+    .kpi-value{display:block;font-size:22px;margin-top:6px;color:var(--accent);font-weight:800}
+    .table-wrap{overflow:auto;border:1px solid var(--muted);border-radius:12px}
+    table{width:100%;border-collapse:collapse}
+    thead th,tbody td{padding:10px;border-bottom:1px solid var(--muted);text-align:left;white-space:nowrap}
+    tbody tr:nth-child(odd){background:rgba(0,0,0,.06)}
+    .about{margin-top:24px;background:var(--surface);border:1px solid var(--muted);border-radius:16px;padding:16px}
+    .footer{border-top:1px solid var(--muted);padding:16px;text-align:center;color:var(--subtext)}
+    @media (max-width:860px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <script>
+    // Utilities
+    const $ = (q,ctx=document)=>ctx.querySelector(q);
+    const $$ = (q,ctx=document)=>Array.from(ctx.querySelectorAll(q));
+
+    // Footer year
+    function setYear(){ $("#year").textContent = new Date().getFullYear(); }
+    setYear();
+
+    // Theme toggle
+    const root = document.documentElement;
+    const themeToggle = $("#themeToggle");
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    if(savedTheme === "light"){ root.classList.add("light"); themeToggle.textContent = "☀"; }
+    themeToggle?.addEventListener("click",()=>{
+      root.classList.toggle("light");
+      const mode = root.classList.contains("light") ? "light" : "dark";
+      themeToggle.textContent = mode === "light" ? "☀" : "☾";
+      localStorage.setItem("theme", mode);
+    });
+
+    // CSV handling
+    const csvInput = $("#csvInput");
+    const fileDrop = $(".file-drop");
+    fileDrop?.addEventListener("click", ()=> csvInput.click());
+    fileDrop?.addEventListener("dragover", e => { e.preventDefault(); fileDrop.classList.add("drag"); });
+    fileDrop?.addEventListener("dragleave", ()=> fileDrop.classList.remove("drag"));
+    fileDrop?.addEventListener("drop", e => {
+      e.preventDefault();
+      fileDrop.classList.remove("drag");
+      if(e.dataTransfer.files?.[0]) loadCSV(e.dataTransfer.files[0]);
+    });
+    csvInput?.addEventListener("change", e => {
+      if(e.target.files?.[0]) loadCSV(e.target.files[0]);
+    });
+
+    function loadCSV(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        const rows = text.trim().split(/\r?\n/).map(r => r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g,'')));
+        renderTable(rows);
+        if(rows.length>1){
+          const headers = rows[0];
+          const firstNumColIndex = headers.findIndex((_,idx)=> rows.slice(1).some(r=>!isNaN(parseFloat(r[idx]))));
+          if(firstNumColIndex>=0){
+            const labels = rows.slice(1).map(r=>r[0]);
+            const data = rows.slice(1).map(r=>parseFloat(r[firstNumColIndex])||0);
+            updateCharts(labels, data);
+          }
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderTable(rows){
+      const thead = $("#csvTable thead");
+      const tbody = $("#csvTable tbody");
+      thead.innerHTML = "";
+      tbody.innerHTML = "";
+      if(!rows.length) return;
+      const headRow = document.createElement("tr");
+      rows[0].forEach(h=>{ const th = document.createElement("th"); th.textContent = h; headRow.appendChild(th); });
+      thead.appendChild(headRow);
+      rows.slice(1, 1+100).forEach(r=>{
+        const tr = document.createElement("tr");
+        r.forEach(c=>{ const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Charts
+    let lineChart, barChart;
+    function initCharts(){
+      const lc = document.getElementById("lineChart");
+      const bc = document.getElementById("barChart");
+      if(!lc || !bc || !window.Chart) return;
+      const labels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      const values = [12,19,8,15,22,13,17];
+      lineChart = new Chart(lc, {
+        type: "line",
+        data: { labels, datasets: [{ label: "Sessions", data: values, tension:.35, fill:false }]},
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+      });
+      barChart = new Chart(bc, {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Signups", data: values.map(v=>Math.round(v*0.7)) }]},
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+      });
+    }
+    function updateCharts(labels, data){
+      if(!lineChart || !barChart) return;
+      lineChart.data.labels = labels;
+      lineChart.data.datasets[0].data = data;
+      lineChart.update();
+      barChart.data.labels = labels;
+      barChart.data.datasets[0].data = data.map(v=>Math.max(0, Math.round(v*0.6)));
+      barChart.update();
+    }
+    window.addEventListener("DOMContentLoaded", initCharts);
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="data:image/svg+xml;utf8,<svg width='128' height='128' viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'><rect width='512' height='512' rx='64' fill='%230B0F14'/><g><path d='M96 256c0-88.366 71.634-160 160-160s160 71.634 160 160-71.634 160-160 160S96 344.366 96 256z' stroke='%2300D7C9' stroke-width='18' fill='none'/><path d='M140 312c32-72 96-112 164-96 44 10 88 42 104 80' stroke='%2319E0B5' stroke-width='18' stroke-linecap='round' fill='none'/><circle cx='256' cy='256' r='18' fill='%2300D7C9'/><path d='M256 128v60M256 324v60M188 256h-60M324 256h60' stroke='%2300D7C9' stroke-width='14' stroke-linecap='round'/></g></svg>" alt="InsightPulse logo" class="logo" />
+      <h1>InsightPulse</h1>
+    </div>
+    <nav class="topnav">
+      <button id="themeToggle" title="Toggle theme">☾</button>
+      <a class="btn primary" href="#upload">Upload CSV</a>
+      <a class="btn ghost" href="#widgets">Widgets</a>
+      <a class="btn ghost" href="#about">About</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-text">
+        <h2>Black &amp; Teal, Clean &amp; Fast</h2>
+        <p>Drop in your data. Get instant visuals. Ship dashboards in minutes.</p>
+        <div class="hero-actions">
+          <label class="file-drop" id="upload">
+            <input type="file" id="csvInput" accept=".csv" hidden />
+            <span>Drag &amp; drop CSV here or <u>browse</u></span>
+          </label>
+          <a class="btn secondary" href="data:text/csv,Month,Revenue,Users,Conversion%0AJan,12000,980,4.3%0AFeb,14100,1022,4.5%0AMar,15750,1108,4.8%0AApr,17040,1205,5.0%0AMay,16660,1182,4.9%0AJun,18220,1260,5.1%0AJul,19510,1324,5.3" download>Download sample CSV</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <img src="data:image/svg+xml;utf8,<svg width='128' height='128' viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'><rect width='512' height='512' rx='64' fill='%230B0F14'/><g><path d='M96 256c0-88.366 71.634-160 160-160s160 71.634 160 160-71.634 160-160 160S96 344.366 96 256z' stroke='%2300D7C9' stroke-width='18' fill='none'/><path d='M140 312c32-72 96-112 164-96 44 10 88 42 104 80' stroke='%2319E0B5' stroke-width='18' stroke-linecap='round' fill='none'/><circle cx='256' cy='256' r='18' fill='%2300D7C9'/><path d='M256 128v60M256 324v60M188 256h-60M324 256h60' stroke='%2300D7C9' stroke-width='14' stroke-linecap='round'/></g></svg>" alt="InsightPulse Symbol" />
+      </div>
+    </section>
+
+    <section id="widgets" class="grid">
+      <div class="card">
+        <h3>KPIs</h3>
+        <div class="kpis">
+          <div class="kpi"><span class="kpi-label">Revenue</span><span class="kpi-value" id="kpiRevenue">$128K</span></div>
+          <div class="kpi"><span class="kpi-label">Users</span><span class="kpi-value" id="kpiUsers">8,214</span></div>
+          <div class="kpi"><span class="kpi-label">Conversion</span><span class="kpi-value" id="kpiConv">4.7%</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Line Chart</h3>
+        <canvas id="lineChart" height="120"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Bar Chart</h3>
+        <canvas id="barChart" height="120"></canvas>
+      </div>
+
+      <div class="card wide">
+        <h3>Parsed CSV Preview</h3>
+        <div class="table-wrap">
+          <table id="csvTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about">
+      <h3>About InsightPulse</h3>
+      <p>This is the single-file, GitHub Pages & Vercel-ready demo. No build step required.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>© <span id="year"></span> InsightPulse. All rights reserved.</small>
+  </footer>
