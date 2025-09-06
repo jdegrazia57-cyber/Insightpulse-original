@@ -1,4 +1,310 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insightpulse — AI-powered embedded analytics</title>
+  <meta name="description" content="Insightpulse: AI-powered embedded analytics. Upload a CSV and get instant KPIs, tables, and charts. Export and white-label ready." />
+
+  <!-- Fonts & Icons (lightweight) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js (charts), PapaParse (CSV), jsPDF (PDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#000914;
+      --surface:#041b2f;
+      --panel:#08243d;
+      --mint:#84f7e8;
+      --cyan:#29d2f2;
+      --teal:#10b3b3;
+      --text:#e9feff;
+      --sub:#8eb9c0;
+      --glow: 0 0 24px rgba(41,210,242,.18);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text); background:radial-gradient(1200px 600px at 10% -10%, #08324f, transparent 60%), var(--bg);
+    }
+    a{color:var(--cyan); text-decoration:none}
+    .wrap{max-width:1100px; margin:0 auto; padding:24px}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      position:sticky; top:0; z-index:5; padding:14px 24px; background:rgba(0,3,10,.6); backdrop-filter:saturate(150%) blur(10px); border-bottom:1px solid #0b2a41;
+    }
+    .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.3px}
+    .logo{width:28px; height:28px; border-radius:8px; background:
+      radial-gradient(120% 120% at 20% 10%, #2ffad4 10%, #24c6f2 38%, #124bb8 72%), #0ff;
+      box-shadow:var(--glow);
+    }
+    .nav{display:flex; gap:12px}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+      padding:.6rem .9rem; border:1px solid #0b2a41; border-radius:10px; background:linear-gradient(180deg,#0b2036,#07192b);
+      color:var(--text); cursor:pointer; transition:.15s; text-decoration:none; font-weight:600; font-size:.95rem;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(4,30,55,.35)}
+    .btn.ghost{background:#04162a}
+    .muted{color:var(--sub)}
+
+    .hero{
+      margin:28px auto 20px; padding:22px; border:1px solid #0b2a41; border-radius:var(--radius);
+      background:linear-gradient(180deg,#08243d,#071b30); box-shadow:var(--glow);
+    }
+    .hero h1{margin:0 0 6px; font-size:1.85rem}
+    .grid{display:grid; gap:18px}
+    @media (min-width:900px){ .grid.cols-2{grid-template-columns:1.1fr 1fr} }
+
+    .panel{
+      border:1px solid #0b2a41; border-radius:var(--radius);
+      background:linear-gradient(180deg,#0a2a46,#071b2e);
+      padding:18px; box-shadow:var(--glow);
+    }
+    .panel h2{margin:0 0 8px; font-size:1.2rem}
+    .dash{display:grid; gap:16px}
+    @media (min-width:900px){ .dash{grid-template-columns: 1fr 1fr} }
+
+    .drop{
+      border:2px dashed #1a8cc0; border-radius:12px; padding:26px; text-align:center; color:var(--sub);
+    }
+    .kpigrid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:10px}
+    .kpi{
+      border:1px solid #0b2a41; border-radius:12px; padding:12px; background:#071e32;
+    }
+    .kpi .label{color:#8fb7bf; font-size:.82rem}
+    .kpi .val{font-size:1.3rem; font-weight:800; margin-top:2px}
+
+    table{width:100%; border-collapse:collapse; font-size:.95rem; background:#061a2b; border-radius:10px; overflow:hidden}
+    th,td{padding:10px 12px; border-bottom:1px solid #0b2a41; color:#cfe9ef}
+    th{background:#071f34; text-align:left}
+    tr:hover td{background:#0a2136}
+
+    .tools{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px}
+    .footer{margin:26px auto; padding:18px; color:#89aab2; text-align:center}
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="logo"></div> <span>Insightpulse</span></div>
+    <nav class="nav">
+      <a class="btn ghost" href="#pricing">Pricing</a>
+      <a class="btn ghost" href="#faq">FAQ</a>
+      <a class="btn" href="#app">Live App</a>
+    </nav>
+  </header>
+
+  <main class="wrap" id="app">
+    <section class="hero">
+      <h1>AI-powered embedded analytics</h1>
+      <div class="muted">Upload a CSV to get instant KPIs, a table view, and charts. Export, white-label, and ship.</div>
+    </section>
+
+    <div class="grid cols-2">
+      <section class="panel">
+        <h2>Drop or choose a CSV</h2>
+        <div id="drop" class="drop">Drag a .csv here or <label style="text-decoration:underline; cursor:pointer">
+          browse <input id="file" type="file" accept=".csv" hidden></label></div>
+
+        <div class="tools" style="margin-top:14px">
+          <button class="btn" id="btnSample">Load Sample</button>
+          <button class="btn ghost" id="btnClear">Clear Data</button>
+          <button class="btn ghost" id="btnSave">Save Locally</button>
+          <button class="btn ghost" id="btnLoad">Load Saved</button>
+          <button class="btn ghost" id="btnExportPNG">Export PNG</button>
+          <button class="btn ghost" id="btnExportPDF">Export PDF</button>
+        </div>
+
+        <div class="kpigrid">
+          <div class="kpi"><div class="label">Rows</div><div class="val" id="kRows">0</div></div>
+          <div class="kpi"><div class="label">Columns</div><div class="val" id="kCols">0</div></div>
+          <div class="kpi"><div class="label">Sample</div><div class="val" id="kSample">—</div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Quick charts</h2>
+        <div class="muted" style="margin-bottom:8px">First numeric column is charted automatically.</div>
+        <canvas id="barChart" height="170"></canvas>
+        <div style="height:10px"></div>
+        <canvas id="lineChart" height="170"></canvas>
+      </section>
+    </div>
+
+    <section class="panel" style="margin-top:18px">
+      <h2>Preview Table</h2>
+      <div id="tableWrap"></div>
+    </section>
+
+    <section id="pricing" class="panel" style="margin-top:18px">
+      <h2>Pricing</h2>
+      <p class="muted"><b>Free:</b> Upload CSV & preview widgets instantly.<br>
+      <b>Pro (TBD):</b> Export dashboards, brand controls, integrations, support.</p>
+    </section>
+
+    <section id="faq" class="panel" style="margin-top:18px">
+      <h2>FAQ</h2>
+      <p class="muted"><b>Is my data private?</b> 100% client-side in this build. Nothing leaves your browser.</p>
+      <p class="muted"><b>Can I save datasets?</b> Yes (locally now). Cloud save/auth in the Pro edition.</p>
+    </section>
+
+    <div class="footer">© 2025 Insightpulse.</div>
+  </main>
+
+  <script>
+    // ---------- State ----------
+    let rows = [];       // array of objects (parsed CSV)
+    let headers = [];    // column names
+    let barChart, lineChart;
+
+    // ---------- Elements ----------
+    const $ = s => document.querySelector(s);
+    const drop = $('#drop'), file = $('#file'), tableWrap = $('#tableWrap');
+    const kRows = $('#kRows'), kCols = $('#kCols'), kSample = $('#kSample');
+
+    // ---------- CSV parsing ----------
+    function parseCSV(text){
+      const parsed = Papa.parse(text.trim(), {header:true, dynamicTyping:true});
+      if(parsed.errors?.length){ console.warn(parsed.errors) }
+      rows = parsed.data.filter(r => Object.values(r).some(v => v!==null && v!=='' && v!==undefined));
+      headers = parsed.meta.fields || Object.keys(rows[0]||{});
+      render();
+    }
+
+    // ---------- UI Rendering ----------
+    function render(){
+      // KPIs
+      kRows.textContent = rows.length;
+      kCols.textContent = headers.length;
+      kSample.textContent = rows[0] ? (Object.values(rows[0])[0] + '') : '—';
+
+      // Table
+      tableWrap.innerHTML = '';
+      if(!rows.length){ tableWrap.innerHTML = '<div class="muted">No data loaded yet.</div>'; updateCharts(); return; }
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      headers.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+      thead.appendChild(trh);
+      const tbody = document.createElement('tbody');
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        headers.forEach(h=>{ const td=document.createElement('td'); td.textContent = r[h] ?? ''; tr.appendChild(td); });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(thead); table.appendChild(tbody);
+      tableWrap.appendChild(table);
+
+      // Charts
+      updateCharts();
+    }
+
+    function firstNumericColumn(){
+      for(const h of headers){
+        if(rows.some(r => typeof r[h]==='number')) return h;
+      }
+      return null;
+    }
+
+    function updateCharts(){
+      const ctxB = document.getElementById('barChart');
+      const ctxL = document.getElementById('lineChart');
+
+      if(barChart){ barChart.destroy(); }
+      if(lineChart){ lineChart.destroy(); }
+
+      if(!rows.length){ return; }
+
+      const labelCol = headers[0];
+      const numCol = firstNumericColumn() || headers[1] || headers[0];
+
+      const labels = rows.map(r=> String(r[labelCol]));
+      const data = rows.map(r=> Number(r[numCol]) || 0);
+
+      const common = {
+        type:'bar',
+        data:{ labels, datasets:[{label:numCol, data, borderWidth:2}] },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{labels:{color:'#bfe7ee'}}},
+          scales:{
+            x:{ ticks:{color:'#9fd0d7'}, grid:{color:'#0d2c43'} },
+            y:{ ticks:{color:'#9fd0d7'}, grid:{color:'#0d2c43'} }
+          }
+        }
+      };
+
+      barChart = new Chart(ctxB, common);
+      lineChart = new Chart(ctxL, {...common, type:'line'});
+    }
+
+    // ---------- Drag & Drop / Browse ----------
+    ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.style.borderColor='#29d2f2';}));
+    ;['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.style.borderColor='#1a8cc0'; if(ev==='drop'){ handleFiles(e.dataTransfer.files); }}));
+    file.addEventListener('change', e => handleFiles(e.target.files));
+
+    function handleFiles(files){
+      if(!files || !files[0]) return;
+      const reader = new FileReader();
+      reader.onload = () => parseCSV(reader.result);
+      reader.readAsText(files[0]);
+    }
+
+    // ---------- Buttons ----------
+    $('#btnSample').onclick = () => {
+      const sample = `Name,City,Sales
+Alice,New York,120
+Bob,Miami,95
+Cara,Chicago,141`;
+      parseCSV(sample);
+    };
+    $('#btnClear').onclick = () => { rows=[]; headers=[]; render(); };
+    $('#btnSave').onclick = () => {
+      if(!rows.length) return alert('No data to save yet.');
+      localStorage.setItem('insightpulse:data', JSON.stringify({rows, headers}));
+      alert('Saved locally in this browser.');
+    };
+    $('#btnLoad').onclick = () => {
+      const saved = localStorage.getItem('insightpulse:data');
+      if(!saved) return alert('Nothing saved yet.');
+      const obj = JSON.parse(saved);
+      rows = obj.rows||[]; headers = obj.headers||[];
+      render();
+    };
+    $('#btnExportPNG').onclick = async () => {
+      const node = document.querySelector('.wrap');
+      const canvas = await html2canvas(node, {backgroundColor:'#000914', scale:2});
+      const link = document.createElement('a');
+      link.download = 'insightpulse.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+    $('#btnExportPDF').onclick = async () => {
+      const node = document.querySelector('.wrap');
+      const canvas = await html2canvas(node, {backgroundColor:'#000914', scale:2});
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jspdf.jsPDF({orientation:'landscape', unit:'px', format:'a4'});
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const ratio = Math.min(pageW/canvas.width, pageH/canvas.height);
+      const w = canvas.width*ratio, h = canvas.height*ratio;
+      pdf.addImage(imgData, 'PNG', (pageW-w)/2, (pageH-h)/2, w, h);
+      pdf.save('insightpulse.pdf');
+    };
+
+    // Initial blank render
+    render();
+  </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
